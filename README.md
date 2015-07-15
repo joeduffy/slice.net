@@ -25,7 +25,7 @@ Slice fills this need.  For example, to create one:
     Slice<char> chars = new Slice<char>("Hello, Slice!");
 
     // Over an unmanaged memory buffer:
-    byte\* bb = stackalloc byte[256];
+    byte* bb = stackalloc byte[256];
     Slice<byte> bytes = new Slice<byte>(bb);
 
 Now given a Slice, we can write APIs that work across all of these memory types.
