@@ -12,6 +12,8 @@ namespace System
         /// </summary>
         /// <param name="slice">The source slice, of type T.</param>
         public static Slice<U> Cast<[Primitive]T, [Primitive]U>(this Slice<T> slice)
+            where T : struct
+            where U : struct
         {
             int countOfU =
                 slice.Length * PtrUtils.SizeOf<T>() / PtrUtils.SizeOf<U>();
@@ -19,6 +21,27 @@ namespace System
                 return default(Slice<U>);
             }
             return new Slice<U>(slice.Object, slice.Offset, countOfU);
+        }
+
+        /// <summary>
+        /// Reads a structure of type T out of a slice of bytes.
+        /// </summary>
+        public static T Read<[Primitive]T>(this Slice<byte> slice)
+            where T : struct
+        {
+            Contract.Requires(slice.Length >= PtrUtils.SizeOf<T>());
+            return slice.Cast<byte, T>()[0];
+        }
+
+        /// <summary>
+        /// Writes a structure of type T into a slice of bytes.
+        /// </summary>
+        public static void Write<[Primitive]T>(this Slice<byte> slice, T value)
+            where T : struct
+        {
+            Contract.Requires(slice.Length >= PtrUtils.SizeOf<T>());
+            var cast = slice.Cast<byte, T>();
+            cast[0] = value;
         }
 
         /// <summary>
