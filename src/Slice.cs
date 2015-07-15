@@ -219,6 +219,16 @@ namespace System
         }
 
         /// <summary>
+        /// Checks to see if two slices point at the same memory.  Note that
+        /// this does *not* check to see if the *contents* are equal.
+        /// </summary>
+        public bool ReferenceEquals(Slice<T> other)
+        {
+            return Object == other.Object &&
+                Offset == other.Offset && Length == other.Length;
+        }
+
+        /// <summary>
         /// Returns an enumerator over the Slice's entire contents.
         /// </summary>
         public Enumerator GetEnumerator()
