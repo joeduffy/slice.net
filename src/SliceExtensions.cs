@@ -3,7 +3,7 @@ namespace System
     public static class SliceExtensions
     {
         // TODO(joe): constrain generics to pointerless data.
-        public static Slice<U> Cast<T, U>(this Slice<T> span)
+        public static Slice<U> Cast<[Primitive]T, [Primitive]U>(this Slice<T> span)
         {
             int countOfU =
                 span.Length * PtrUtils.SizeOf<T>() / PtrUtils.SizeOf<U>();
