@@ -46,6 +46,12 @@ class Program
                 Console.Write("{0} ", slice[k]);
             }
             Console.WriteLine();
+
+            Console.Write("#{0}\t", slice.Length);
+            foreach (T k in slice) {
+                Console.Write("{0} ", k);
+            }
+            Console.WriteLine();
 #if GC_STRESS
         }
 #endif
