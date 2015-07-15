@@ -18,15 +18,15 @@ which is a common need in low-level systems programs.
 
 Slice fills this need.  For example, to create one:
 
-   // Over an array:
-   Slice<int> ints = new Slice<int>(int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+    // Over an array:
+    Slice<int> ints = new Slice<int>(int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
 
-   // Over a string (of chars):
-   Slice<char> chars = new Slice<char>("Hello, Slice!");
+    // Over a string (of chars):
+    Slice<char> chars = new Slice<char>("Hello, Slice!");
 
-   // Over an unmanaged memory buffer:
-   byte\* bb = stackalloc byte[256];
-   Slice<byte> bytes = new Slice<byte>(bb);
+    // Over an unmanaged memory buffer:
+    byte\* bb = stackalloc byte[256];
+    Slice<byte> bytes = new Slice<byte>(bb);
 
 Now given a Slice, we can write APIs that work across all of these memory types.
 For example, to print the characters we can use the Length plus indexer:
