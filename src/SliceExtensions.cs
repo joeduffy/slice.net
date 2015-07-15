@@ -1,33 +1,80 @@
 namespace System
 {
+    /// <summary>
+    /// A collection of convenient Slice helpers, exposed as extension methods.
+    /// </summary>
     public static class SliceExtensions
     {
-        // TODO(joe): constrain generics to pointerless data.
-        public static Slice<U> Cast<[Primitive]T, [Primitive]U>(this Slice<T> span)
+        /// <summary>
+        /// Casts a Slice of one primitive type (T) to another primitive type (U).
+        /// These types may not contain managed objects, in order to preserve type
+        /// safety.  This is checked statically by a Roslyn analyzer.
+        /// </summary>
+        /// <param name="slice">The source slice, of type T.</param>
+        public static Slice<U> Cast<[Primitive]T, [Primitive]U>(this Slice<T> slice)
         {
             int countOfU =
-                span.Length * PtrUtils.SizeOf<T>() / PtrUtils.SizeOf<U>();
+                slice.Length * PtrUtils.SizeOf<T>() / PtrUtils.SizeOf<U>();
             if (countOfU == 0) {
                 return default(Slice<U>);
             }
-            return new Slice<U>(span.Object, span.Offset, countOfU);
+            return new Slice<U>(slice.Object, slice.Offset, countOfU);
         }
 
-        public static Slice<T> Slice<T>(this T[] arr)
+        /// <summary>
+        /// Creates a new slice over the portion of the target array.
+        /// </summary>
+        /// <param name="array">The target array.</param>
+        /// <exception cref="System.ArgumentException">
+        /// Thrown if the 'array' parameter is null.
+        /// </exception>
+        public static Slice<T> Slice<T>(this T[] array)
         {
-            return new Slice<T>(arr);
+            return new Slice<T>(array);
         }
 
-        public static Slice<T> Slice<T>(this T[] arr, int start)
+        /// <summary>
+        /// Creates a new slice over the portion of the target array beginning
+        /// at 'start' index.
+        /// </summary>
+        /// <param name="array">The target array.</param>
+        /// <param name="start">The index at which to begin the slice.</param>
+        /// <exception cref="System.ArgumentException">
+        /// Thrown if the 'array' parameter is null.
+        /// </exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Thrown when the specified start index is not in range (&lt;0 or &gt;&eq;length).
+        /// </exception>
+        public static Slice<T> Slice<T>(this T[] array, int start)
         {
-            return new Slice<T>(arr, start);
+            return new Slice<T>(array, start);
         }
 
-        public static Slice<T> Slice<T>(this T[] arr, int start, int end)
+        /// <summary>
+        /// Creates a new slice over the portion of the target array beginning
+        /// at 'start' index and ending at 'end' index (exclusive).
+        /// </summary>
+        /// <param name="array">The target array.</param>
+        /// <param name="start">The index at which to begin the slice.</param>
+        /// <param name="end">The index at which to end the slice (exclusive).</param>
+        /// <exception cref="System.ArgumentException">
+        /// Thrown if the 'array' parameter is null.
+        /// </exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Thrown when the specified start or end index is not in range (&lt;0 or &gt;&eq;length).
+        /// </exception>
+        public static Slice<T> Slice<T>(this T[] array, int start, int end)
         {
-           return new Slice<T>(arr, start, end - start);
+           return new Slice<T>(array, start, end - start);
         }
 
+        /// <summary>
+        /// Creates a new slice over the portion of the target string.
+        /// </summary>
+        /// <param name="str">The target string.</param>
+        /// <exception cref="System.ArgumentException">
+        /// Thrown if the 'str' parameter is null.
+        /// </exception>
         public static Slice<char> Slice(this string str)
         {
             Contract.Requires(str != null);
@@ -38,6 +85,18 @@ namespace System
             );
         }
 
+        /// <summary>
+        /// Creates a new slice over the portion of the target string beginning
+        /// at 'start' index.
+        /// </summary>
+        /// <param name="str">The target string.</param>
+        /// <param name="start">The index at which to begin the slice.</param>
+        /// <exception cref="System.ArgumentException">
+        /// Thrown if the 'str' parameter is null.
+        /// </exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Thrown when the specified start index is not in range (&lt;0 or &gt;&eq;length).
+        /// </exception>
         public static Slice<char> Slice(this string str, int start)
         {
             Contract.Requires(str != null);
@@ -49,6 +108,19 @@ namespace System
             );
         }
 
+        /// <summary>
+        /// Creates a new slice over the portion of the target string beginning
+        /// at 'start' index and ending at 'end' index (exclusive).
+        /// </summary>
+        /// <param name="str">The target string.</param>
+        /// <param name="start">The index at which to begin the slice.</param>
+        /// <param name="end">The index at which to end the slice (exclusive).</param>
+        /// <exception cref="System.ArgumentException">
+        /// Thrown if the 'start' parameter is null.
+        /// </exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Thrown when the specified start or end index is not in range (&lt;0 or &gt;&eq;length).
+        /// </exception>
         public static Slice<char> Slice(this string str, int start, int end)
         {
             Contract.Requires(str != null);
