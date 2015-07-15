@@ -30,6 +30,13 @@ class Program
             var slice = new Slice<int>(ints, 10);
             PrintSlice(slice);
         }
+        {
+            var src = new int[] { 0, 1, 2, 3, 4 }.Slice();
+            PrintSlice(src);
+            var dest = new int[] { 0, 0, 0, 0, 0 }.Slice();
+            src.CopyTo(dest);
+            PrintSlice(dest);
+        }
     }
 
     static void PrintSlice<T>(Slice<T> slice)

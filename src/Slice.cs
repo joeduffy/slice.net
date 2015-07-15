@@ -161,6 +161,36 @@ namespace System
         }
 
         /// <summary>
+        /// Copies the contents of this Slice into a new array.  This heap
+        /// allocates, so should generally be avoided, however is sometimes
+        /// necessary to bridge the gap with APIs written in terms of arrays.
+        /// </summary>
+        public T[] Copy()
+        {
+            var dest = new T[Length];
+            CopyTo(dest.Slice());
+            return dest;
+        }
+
+        /// <summary>
+        /// Copies the contents of this Slice into another.  The destination
+        /// must be at least as big as the source, and may be bigger.
+        /// </summary>
+        /// <param name="dest">The Slice to copy items into.</param>
+        public void CopyTo(Slice<T> dest)
+        {
+            Contract.Requires(dest.Length >= Length);
+            if (Length == 0) {
+                return;
+            }
+
+            // TODO(joe): specialize to use a fast memcpy if T is pointerless.
+            for (int i = 0; i < Length; i++) {
+                dest[i] = this[i];
+            }
+        }
+
+        /// <summary>
         /// Forms a subslice out of the given slice, beginning at 'start'.
         /// </summary>
         /// <param name="start">The index at which to begin this subslice.</param>
