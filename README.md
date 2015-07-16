@@ -6,13 +6,14 @@ A simple C# type, Slice, that provides a uniform API for working with
 - Strings and substrings
 - Unmanaged memory buffers
 
-Slice is a struct so it adds no allocations beyond the memory you're viewing.
-It is fully type- and memory-safe.
+Slice is fully type- and memory-safe.
+
+Slice is a struct so it adds no allocations beyond the memory backing it.
 
 ## Unform access to many kinds of contiguous memory
 
-.NET gives you IEnumerable<T>; today as an abstraction that works across a wide
-variety of collections, and IList<T> for indexable things.  There's no standard
+.NET gives you IEnumerable&lt;T&gt;; today as an abstraction that works across a wide
+variety of collections, and IList&lt;T&gt; for indexable things.  There's no standard
 way to access the notion of a "contiguous buffer," with zero overhead, however,
 which is a common need in low-level systems programs.
 
@@ -29,7 +30,7 @@ Slice fills this need.  For example, to create one:
     Slice<byte> bytes = new Slice<byte>(bb);
 
 Now given a Slice, we can write APIs that work across all of these memory types.
-For example, to print the characters we can use the Length plus indexer:
+For example, to print the elements we can use the Length plus indexer:
 
     void PrintSlice<T>(Slice<T> slice) {
         for (int i = 0; i < slice.Length; i++) {
@@ -47,11 +48,11 @@ Or even leverage the fact that Slice implements IEnumerable efficiently:
         Console.WriteLine();
     }
 
-## Make subslices without allocations
+## Make subslices w/out allocations
 
 Slice is a struct, so creating new ones is cheap.  Underneath the hood, it's
-little more than a pointer plus offset.  As a result it's common for programs to
-create subslices for a variety of tasks.
+little more than a pointer plus offset and length.  As a result it's common for
+programs to create subslices for a variety of tasks.
 
 Maybe your calling an API and only want it to see a subset of the data:
 
@@ -95,6 +96,23 @@ Our of a byte\* that came from the networking stack.  Easy enough:
         // Keep parsing ...
     }
 
+Similarly, imagine we have a payload representing an array of data structures.
+We can convert the entire Slice into a whole new type:
+
+    [StructLayout(...)]
+    struct Point3D {
+        int X;
+        int Y;
+        int Z;
+    }
+
+    Slice<byte> bytes = ...;
+    Slice<Point3D> points = bytes.Cast<byte, Point3D>();
+    ... points[0].X ...
+
+
+All of the above can come in handy when writing de/serializers, for instance.
+
 ## Establish safety boundaries for unsafe code
 
 As we saw above, Slice can bridge the boundary between unsafe code using pointers,
@@ -114,6 +132,7 @@ be better off written more like this:
 
     void HandleRequest(Slice<byte> payload)
     {
-        // The meat goes here.  This is the (preferred) / advertised API.
+        // The meat goes here.
+        // This is the (preferred) / advertised API, because it's safe.
     }
 
