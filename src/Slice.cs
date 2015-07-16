@@ -1,3 +1,11 @@
+//===--- Slice.cs ---------------------------------------------------------===//
+//
+// Copyright (c) 2014 Joe Duffy. All rights reserved.
+//
+// This file is distributed under the MIT License. See LICENSE.md for details.
+//
+//===----------------------------------------------------------------------===//
+
 using System.Collections;
 using System.Collections.Generic;
 

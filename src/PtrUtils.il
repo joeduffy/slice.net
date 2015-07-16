@@ -1,3 +1,11 @@
+//===--- PtrUtils.il ------------------------------------------------------===//
+//
+// Copyright (c) 2014 Joe Duffy. All rights reserved.
+//
+// This file is distributed under the MIT License. See LICENSE.md for details.
+//
+//===----------------------------------------------------------------------===//
+
 .assembly extern mscorlib
 {
   .publickeytoken = (B7 7A 5C 56 19 34 E0 89 )                         // .z\V.4..
