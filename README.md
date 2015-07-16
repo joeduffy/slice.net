@@ -10,7 +10,7 @@ Slice is fully type- and memory-safe.
 
 Slice is a struct so it adds no allocations beyond the memory backing it.
 
-## Unform access to many kinds of contiguous memory
+## Uniform access to many kinds of contiguous memory
 
 .NET gives you IEnumerable&lt;T&gt; as an abstraction that works across a wide
 variety of collections, and IList&lt;T&gt; for indexable things.  There's no standard
@@ -50,7 +50,7 @@ Or even leverage the fact that Slice implements IEnumerable efficiently:
 
 ## Make subslices w/out allocations
 
-Slice is a struct, so creating new ones is cheap.  Underneath the hood, it's
+Slice is a struct, so creating a new one is cheap.  Underneath the hood, it's
 little more than a pointer plus offset and length.  As a result it's common for
 programs to create subslices for a variety of tasks.
 
