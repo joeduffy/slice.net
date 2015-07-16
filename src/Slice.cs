@@ -19,9 +19,9 @@ namespace System
     /// </summary>
     public struct Slice<T> : IEnumerable<T>
     {
-        object  m_object; // A managed array/string; or null for native ptrs.
-        UIntPtr m_offset; // An byte-offset into the array/string; or a native ptr.
-        int     m_length; // The length of the slice.
+        readonly object  m_object; // A managed array/string; or null for native ptrs.
+        readonly UIntPtr m_offset; // An byte-offset into the array/string; or a native ptr.
+        readonly int     m_length; // The length of the slice.
 
         /// <summary>
         /// Creates a new slice over the entirety of the target array.

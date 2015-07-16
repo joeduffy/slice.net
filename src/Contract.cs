@@ -6,6 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+using System.Runtime.CompilerServices;
+
 namespace System
 {
     static class Contract
@@ -29,6 +31,7 @@ namespace System
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequiresInRange(int start, int length)
         {
             if (!(start >= 0 && start < length)) {

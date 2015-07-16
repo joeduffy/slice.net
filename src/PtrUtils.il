@@ -44,7 +44,7 @@
         /// a way that the GC will be okay with.  It yields a value of type T.
         /// </summary>
         .method public hidebysig static !!T Get<T>(
-            object obj, native uint offset) cil managed
+            object obj, native uint offset) cil managed aggressiveinlining
         {
             .maxstack 2
             .locals ([0] uint8& addr)
@@ -63,7 +63,7 @@
         /// GC will be okay with.
         /// </summary>
         .method public hidebysig static void Set<T>(
-            object obj, native uint offset, !!T val) cil managed
+            object obj, native uint offset, !!T val) cil managed aggressiveinlining
         {
             .maxstack 2
             .locals ([0] uint8& addr)
@@ -95,7 +95,7 @@
         /// Computes the size of any type T.  This includes managed object types
         /// which C# complains about (because it is architecture dependent).
         /// </summary>
-        .method public hidebysig static int32 SizeOf<T>() cil managed
+        .method public hidebysig static int32 SizeOf<T>() cil managed aggressiveinlining
         {
             sizeof !!T
             ret
