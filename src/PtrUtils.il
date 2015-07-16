@@ -12,17 +12,13 @@
   .ver 4:0:0:0
 }
 
-.assembly System.Slice.Core
-{
-}
-
 .namespace System
 {
     /// <summary>
     /// A collection of unsafe helper methods that we cannot implement in C#.
     /// NOTE: these can be used for VeryBadThings(tm), so tread with care...
     /// </summary>
-    .class public auto ansi sealed beforefieldinit PtrUtils
+    .class private auto ansi sealed beforefieldinit PtrUtils
         extends [mscorlib]System.Object
     {
         // WARNING:
