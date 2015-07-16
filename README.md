@@ -12,7 +12,7 @@ Slice is a struct so it adds no allocations beyond the memory backing it.
 
 ## Unform access to many kinds of contiguous memory
 
-.NET gives you IEnumerable&lt;T&gt;; today as an abstraction that works across a wide
+.NET gives you IEnumerable&lt;T&gt; as an abstraction that works across a wide
 variety of collections, and IList&lt;T&gt; for indexable things.  There's no standard
 way to access the notion of a "contiguous buffer," with zero overhead, however,
 which is a common need in low-level systems programs.
