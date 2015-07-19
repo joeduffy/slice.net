@@ -1,4 +1,4 @@
-//===--- Harness.cs -------------------------------------------------------===//
+﻿//===--- Harness.cs -------------------------------------------------------===//
 //
 // Copyright (c) 2015 Joe Duffy. All rights reserved.
 //
@@ -8,6 +8,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 
 class Program
@@ -68,6 +69,10 @@ class Tester
                 testMethod.GetParameters()[0].ParameterType == typeof(Tester)) {
 
                 Console.WriteLine("Run {0}...", testMethod.Name);
+
+                JitWarmUp(testMethod, tests);
+                CleanUpMemory();
+
                 sw.Start();
                 int failures = m_failures;
                 bool success = (bool)testMethod.Invoke(tests, new object[] { this });
@@ -81,9 +86,34 @@ class Tester
                 }
                 sw.Reset();
             }
-
         }
         return Success;
     }
-}
 
+    public void CleanUpMemory()
+    {
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+    }
+
+    private void JitWarmUp(MethodInfo testMethod, object tests)
+    {
+        SilentExecution(() => testMethod.Invoke(tests, new object[] { this }));
+    }
+
+    private void SilentExecution(Action command)
+    {
+        var output = Console.Out;
+        try
+        {
+            Console.SetOut(TextWriter.Null);
+
+            command.Invoke();
+        }
+        finally
+        {
+            Console.SetOut(output);
+        }
+    }
+}
