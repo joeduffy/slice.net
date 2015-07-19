@@ -24,7 +24,7 @@ namespace System
         /// </summary>
         public readonly int Length;
         
-		readonly object  m_object; // A managed array/string; or null for native ptrs.
+        readonly object  m_object; // A managed array/string; or null for native ptrs.
         readonly UIntPtr m_offset; // An byte-offset into the array/string; or a native ptr.
 
         /// <summary>
