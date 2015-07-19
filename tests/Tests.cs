@@ -151,6 +151,8 @@ class Tests
         Random r = new Random(1234);
         for (int i = 0; i < ints.Length; i++) { ints[i] = r.Next(); }
 
+		t.CleanUpMemory();
+		
         var sw = System.Diagnostics.Stopwatch.StartNew();
         int x = 0;
         for (int i = 0; i < 10000; i++) {
@@ -160,6 +162,8 @@ class Tests
         }
         sw.Stop();
         Console.WriteLine("    - ints : {0}", sw.Elapsed);
+		
+		t.CleanUpMemory();
 
         var slice = ints.Slice();
         sw.Reset();
