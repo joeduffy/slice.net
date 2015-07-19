@@ -19,13 +19,12 @@ namespace System
     /// </summary>
     public struct Slice<T> : IEnumerable<T>
     {
-        /// <summary>
-        /// Fetches the number of elements this Slice contains.
-        /// </summary>
+        /// <summary>A managed array/string; or null for native ptrs.</summary>
+        readonly object  m_object;
+        /// <summary>An byte-offset into the array/string; or a native ptr.</summary>
+        readonly UIntPtr m_offset;
+        /// <summary>Fetches the number of elements this Slice contains.</summary>
         public readonly int Length;
-        
-        readonly object  m_object; // A managed array/string; or null for native ptrs.
-        readonly UIntPtr m_offset; // An byte-offset into the array/string; or a native ptr.
 
         /// <summary>
         /// Creates a new slice over the entirety of the target array.
@@ -143,7 +142,7 @@ namespace System
         {
             get { return m_offset; }
         }
-		
+
         /// <summary>
         /// Fetches the element at the specified index.
         /// </summary>

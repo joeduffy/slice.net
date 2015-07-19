@@ -97,22 +97,19 @@ class Tester
         GC.Collect();
     }
 
-    private void JitWarmUp(MethodInfo testMethod, object tests)
+    void JitWarmUp(MethodInfo testMethod, object tests)
     {
         SilentExecution(() => testMethod.Invoke(tests, new object[] { this }));
     }
 
-    private void SilentExecution(Action command)
+    void SilentExecution(Action command)
     {
         var output = Console.Out;
-        try
-        {
+        try {
             Console.SetOut(TextWriter.Null);
-
             command.Invoke();
         }
-        finally
-        {
+        finally {
             Console.SetOut(output);
         }
     }
