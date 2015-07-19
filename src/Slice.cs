@@ -19,9 +19,13 @@ namespace System
     /// </summary>
     public struct Slice<T> : IEnumerable<T>
     {
-        readonly object  m_object; // A managed array/string; or null for native ptrs.
+        /// <summary>
+        /// Fetches the number of elements this Slice contains.
+        /// </summary>
+        public readonly int Length;
+        
+		readonly object  m_object; // A managed array/string; or null for native ptrs.
         readonly UIntPtr m_offset; // An byte-offset into the array/string; or a native ptr.
-        readonly int     m_length; // The length of the slice.
 
         /// <summary>
         /// Creates a new slice over the entirety of the target array.
@@ -35,7 +39,7 @@ namespace System
             Contract.Requires(array != null);
             m_object = array;
             m_offset = new UIntPtr((uint)SliceHelpers<T>.OffsetToArrayData);
-            m_length = array.Length;
+            Length = array.Length;
         }
 
         /// <summary>
@@ -58,12 +62,12 @@ namespace System
                 m_object = array;
                 m_offset = new UIntPtr(
                     (uint)(SliceHelpers<T>.OffsetToArrayData + (start * PtrUtils.SizeOf<T>())));
-                m_length = array.Length - start;
+                Length = array.Length - start;
             }
             else {
                 m_object = null;
                 m_offset = UIntPtr.Zero;
-                m_length = 0;
+                Length = 0;
             }
         }
 
@@ -88,12 +92,12 @@ namespace System
                 m_object = array;
                 m_offset = new UIntPtr(
                     (uint)(SliceHelpers<T>.OffsetToArrayData + (start * PtrUtils.SizeOf<T>())));
-                m_length = end - start;
+                Length = end - start;
             }
             else {
                 m_object = null;
                 m_offset = UIntPtr.Zero;
-                m_length = 0;
+                Length = 0;
             }
         }
 
@@ -111,7 +115,7 @@ namespace System
             Contract.Requires(length == 0 || ptr != null);
             m_object = null;
             m_offset = new UIntPtr(ptr);
-            m_length = length;
+            Length = length;
         }
 
         /// <summary>
@@ -121,15 +125,7 @@ namespace System
         {
             m_object = obj;
             m_offset = offset;
-            m_length = length;
-        }
-
-        /// <summary>
-        /// Fetches the number of elements this Slice contains.
-        /// </summary>
-        public int Length
-        {
-            get { return m_length; }
+            Length = length;
         }
 
         /// <summary>
@@ -147,7 +143,7 @@ namespace System
         {
             get { return m_offset; }
         }
-
+		
         /// <summary>
         /// Fetches the element at the specified index.
         /// </summary>
