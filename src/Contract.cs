@@ -34,7 +34,9 @@ namespace System
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequiresInRange(int start, int length)
         {
-            if (!(start >= 0 && start < length)) {
+            // use unsigned int to reduce range check by one ( >= 0 )
+            if ((uint)start >= (uint)length)
+            {
                 throw new ArgumentOutOfRangeException();
             }
         }
