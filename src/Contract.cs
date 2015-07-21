@@ -35,15 +35,14 @@ namespace System
         public static void RequiresInRange(int start, int length)
         {
             // use unsigned int to reduce range check by one ( >= 0 )
-            if ((uint)start >= (uint)length)
-            {
+            if ((uint)start >= (uint)length) {
                 throw new ArgumentOutOfRangeException();
             }
         }
 
         public static void RequiresInInclusiveRange(int start, int length)
         {
-            if (!(start >= 0 && start <= length)) {
+            if ((uint)start > (uint)length) {
                 throw new ArgumentOutOfRangeException();
             }
         }
