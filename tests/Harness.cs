@@ -59,6 +59,20 @@ class Tester
         Assert(x.Equals(y), String.Format("{0} != {1}", x, y));
     }
 
+    public void Throws<TException>(Action command)
+        where TException : Exception
+    {
+        try {
+            command.Invoke();
+        }
+        catch (TException) {
+            return;
+        }
+
+        m_failures++;
+        Console.WriteLine("    # assertion failed, command did not throw");
+    }
+
     public bool RunTests(object tests)
     {
         // Run all methods that match the pattern 'bool Test*(Tester t)'

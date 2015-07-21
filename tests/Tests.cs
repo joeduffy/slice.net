@@ -144,5 +144,19 @@ class Tests
         }
         return true;
     }
+
+    public bool TestRangeCheckAlwaysThrowsArgumentOutOfRangeExceptionForNegativeValues(Tester tester)
+    {
+        var slice = new[] { 0, 1, 2, 3 }.Slice();
+
+        unchecked {
+            tester.Throws<ArgumentOutOfRangeException>(() => { int x = slice[-1]; });
+        }
+        checked {
+            tester.Throws<ArgumentOutOfRangeException>(() => { int x = slice[-1]; });
+        }
+
+        return true;
+    }
 }
 
