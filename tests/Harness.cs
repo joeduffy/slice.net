@@ -25,6 +25,9 @@ class Program
         else {
             Console.WriteLine("{0} Failures ({1})", t.Failures, sw.Elapsed);
         }
+        Console.WriteLine("==========");
+        Console.WriteLine("Performance Tests");
+        t.RunTests(new PerformanceTests());
     }
 }
 
