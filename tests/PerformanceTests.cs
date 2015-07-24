@@ -172,13 +172,12 @@ class PerformanceTests
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
         int sum = 0;
-
         for (int i = 0; i < ElementsCount; i++) {
             sum += test.Invoke(data);;
         }
 
         stopwatch.Stop();
-        Console.WriteLine("    - {0}:  {1}", new string(typeof(T).Name.Take(5).ToArray()), stopwatch.Elapsed);
+        Console.WriteLine("    - {0}:  {1}", new string((typeof(T).Name + "  ").Take(7).ToArray()), stopwatch.Elapsed);
         return sum;
     }
 
