@@ -17,7 +17,7 @@ namespace System
     /// to regular accesses and is a struct so that creation and subslicing do
     /// not require additional allocations.  It is type- and memory-safe.
     /// </summary>
-    public struct Slice<T> : IEnumerable<T>
+    public partial struct Slice<T> : IEnumerable<T>
     {
         /// <summary>A managed array/string; or null for native ptrs.</summary>
         readonly object  m_object;
@@ -230,66 +230,6 @@ namespace System
             return Object == other.Object &&
                 Offset == other.Offset && Length == other.Length;
         }
-
-        /// <summary>
-        /// Returns an enumerator over the Slice's entire contents.
-        /// </summary>
-        public Enumerator GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        /// <summary>
-        /// A struct-based enumerator, to make fast enumerations possible.
-        /// This isn't designed for direct use, instead see GetEnumerator.
-        /// </summary>
-        public struct Enumerator : IEnumerator<T>
-        {
-            Slice<T> m_slice;    // The slice being enumerated.
-            int      m_position; // The current position.
-
-            public Enumerator(Slice<T> slice)
-            {
-                m_slice = slice;
-                m_position = -1;
-            }
-
-            public T Current
-            {
-                get { return m_slice[m_position]; }
-            }
-
-            object IEnumerator.Current
-            {
-                get { return Current; }
-            }
-
-            public void Dispose()
-            {
-                m_slice = default(Slice<T>);
-                m_position = -1;
-            }
-
-            public bool MoveNext()
-            {
-                return ++m_position < m_slice.Length;
-            }
-
-            public void Reset()
-            {
-                m_position = -1;
-            }
-        }        
     }
 }
 
