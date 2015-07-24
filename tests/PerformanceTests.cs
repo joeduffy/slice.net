@@ -12,6 +12,8 @@ using System.Linq;
 
 class PerformanceTests
 {
+    private const int ElementsCount = 10000;
+
     /// <summary>
     /// the JIT compiler eliminates bounds check for some standard loops i.e. (int j = 0; j &lt; array.Length; j++) { sum += array[j] }
     /// the purpose of this test is to show how big the difference is because of that
@@ -19,110 +21,87 @@ class PerformanceTests
     /// </summary>
     public bool TestPerfOfStandardBoundariesForLoop(Tester tester)
     {
-        const int elementsCount = 10000;
-        var array = GenerateRandomNumbers(elementsCount);
+        ExecuteAndMeasure(
+            GenerateRandomNumbers(ElementsCount),
+            array => {
+                int sum = 0;
+                for (int j = 0; j < array.Length; j++) {
+                    sum += array[j];
+                }
+                return sum;
+            });
 
-        tester.CleanUpMemory();
+        ExecuteAndMeasure(
+           GenerateRandomNumbers(ElementsCount).Slice(),
+           slice => {
+                int sum = 0;
+                for (int j = 0; j < slice.Length; j++) {
+                    sum += slice[j];
+               }
+               return sum;
+           });
 
-        var sw = System.Diagnostics.Stopwatch.StartNew();
-        int arraySum = 0;
-        for (int i = 0; i < elementsCount; i++) {
-            for (int j = 0; j < array.Length; j++) {
-                arraySum += array[j];
-            }
-        }
-        sw.Stop();
-        Console.WriteLine("    - array of ints: {0}", sw.Elapsed);
+        ExecuteAndMeasure(
+           GenerateRandomNumbers(ElementsCount).ToList(),
+           list => {
+                int sum = 0;
+                for (int j = 0; j < list.Count; j++) {
+                    sum += list[j];
+                }
+               return sum;
+           });
 
-        tester.CleanUpMemory();
-
-        var slice = array.Slice();
-        sw.Restart();
-        int sliceSum = 0;
-        for (int i = 0; i < elementsCount; i++) {
-            for (int j = 0; j < slice.Length; j++) {
-                sliceSum += slice[j];
-            }
-        }
-        sw.Stop();
-        Console.WriteLine("    - slice of ints: {0}", sw.Elapsed);
-
-        tester.CleanUpMemory();
-
-        var list = array.ToList();
-        sw.Restart();
-        int listSum = 0;
-        for (int i = 0; i < elementsCount; i++) {
-            for (int j = 0; j < list.Count; j++) {
-                listSum += list[j];
-            }
-        }
-        sw.Stop();
-        Console.WriteLine("    - list of ints:  {0}", sw.Elapsed);
-
-        tester.AssertEqual(arraySum, sliceSum);
-        tester.AssertEqual(listSum, sliceSum);
         return true;
     }
 
     /// <summary>
-    /// the JIT compiler does not eliminate bounds check for nonstandard loops i.e. (int j = 0; j &lt; array.Length / 2; j++) { sum += array[j + 1] }
-    /// the purpose of this test is to show that Slice is as fast as Array in this case
+    /// the JIT compiler does not eliminate bounds check for nonstandard loops 
+    /// i.e. (int j = 0; j &lt; array.Length / 2; j++) { sum += array[j + 1] }
+    /// the purpose of this test is to show how fast Slice is when compared 
+    /// to array and list that do not get any extra support from CLR
     /// </summary>
     public bool TestPerfOfNonStandardBoundariesForLoop(Tester tester)
     {
-        const int elementsCount = 10000;
-        var array = GenerateRandomNumbers(elementsCount);
+        ExecuteAndMeasure(
+            GenerateRandomNumbers(ElementsCount),
+            array => {
+                int sum = 0;
+                for (int j = 0; j < array.Length / 2; j++) {
+                    sum += array[j * 2];
+                }
+                return sum;
+            });
 
-        tester.CleanUpMemory();
+        ExecuteAndMeasure(
+           GenerateRandomNumbers(ElementsCount).Slice(),
+           slice => {
+                int sum = 0;
+                for (int j = 0; j < slice.Length / 2; j++) {
+                    sum += slice[j * 2];
+                }
+                return sum;
+           });
 
-        var sw = System.Diagnostics.Stopwatch.StartNew();
-        int arraySum = 0;
-        for (int i = 0; i < elementsCount; i++) {
-            for (int j = 0; j < array.Length / 2; j++) {
-                arraySum += array[j + 1];
-            }
-        }
-        sw.Stop();
-        Console.WriteLine("    - array of ints: {0}", sw.Elapsed);
+        ExecuteAndMeasure(
+           GenerateRandomNumbers(ElementsCount).ToList(),
+           list => {
+                int sum = 0;
+                for (int j = 0; j < list.Count / 2; j++) {
+                    sum += list[j * 2];
+                }
+                return sum;
+           });
 
-        tester.CleanUpMemory();
-
-        var slice = array.Slice();
-        sw.Restart();
-        int sliceSum = 0;
-        for (int i = 0; i < elementsCount; i++) {
-            for (int j = 0; j < slice.Length / 2; j++) {
-                sliceSum += slice[j + 1];
-            }
-        }
-        sw.Stop();
-        Console.WriteLine("    - slice of ints: {0}", sw.Elapsed);
-
-        tester.CleanUpMemory();
-
-        var list = array.ToList();
-        sw.Restart();
-        int listSum = 0;
-        for (int i = 0; i < elementsCount; i++) {
-            for (int j = 0; j < list.Count / 2; j++) {
-                listSum += list[j + 1];
-            }
-        }
-        sw.Stop();
-        Console.WriteLine("    - list of ints:  {0}", sw.Elapsed);
-
-        tester.AssertEqual(arraySum, sliceSum);
-        tester.AssertEqual(listSum, sliceSum);
         return true;
     }
 
     /// <summary>
-    /// the compiler optimizes foreach loops for collections that do have public method 
-    /// "GetEnumerator that takes no parameters and returns a type that has two members: 
-    ///     a) a method MoveMext that takes no parameters and return a Boolean, and 
+    /// the compiler optimizes foreach loops for:
+    ///  1) built in collections like arrays
+    ///  2) these collections that do have public method "GetEnumerator that takes no parameters and returns a type that has two members:
+    ///     a) a method MoveNext that takes no parameters and return a Boolean, and 
     ///     b) a property Current with a getter that returns an Object"
-    /// source: http://blogs.msdn.com/b/kcwalina/archive/2007/07/18/ducknotation.aspx
+    ///     source: http://blogs.msdn.com/b/kcwalina/archive/2007/07/18/ducknotation.aspx
     /// the gain is that is does not call interface members on structures which is expensive
     /// and does not put it into try/finally block with Dispose in the finally
     /// the purpose of this test is to show how big the difference is because of that
@@ -130,49 +109,36 @@ class PerformanceTests
     /// </summary>
     public bool TestPerfOfForEachLoop(Tester tester)
     {
-        const int elementsCount = 10000;
-        var array = GenerateRandomNumbers(elementsCount);
+        ExecuteAndMeasure(
+            GenerateRandomNumbers(ElementsCount),
+            array => {
+                int sum = 0;
+                foreach (var number in array) {
+                    sum += number;
+                }
+                return sum;
+            });
 
-        tester.CleanUpMemory();
+        ExecuteAndMeasure(
+           GenerateRandomNumbers(ElementsCount).Slice(),
+            slice => {
+                int sum = 0;
+                foreach (var number in slice) {
+                    sum += number;
+                }
+                return sum;
+           });
 
-        var sw = System.Diagnostics.Stopwatch.StartNew();
-        int arraySum = 0;
-        for (int i = 0; i < elementsCount; i++) {
-            foreach (int number in array) {
-                arraySum += number;
-            }
-        }
-        sw.Stop();
-        Console.WriteLine("    - array of ints: {0}", sw.Elapsed);
+        ExecuteAndMeasure(
+           GenerateRandomNumbers(ElementsCount).ToList(),
+            list => {
+                int sum = 0;
+                foreach (var number in list) {
+                    sum += number;
+                }
+                return sum;
+           });
 
-        tester.CleanUpMemory();
-
-        var slice = array.Slice();
-        sw.Restart();
-        int sliceSum = 0;
-        for (int i = 0; i < elementsCount; i++) {
-            foreach (int number in slice) {
-                sliceSum += number;
-            }
-        }
-        sw.Stop();
-        Console.WriteLine("    - slice of ints: {0}", sw.Elapsed);
-
-        tester.CleanUpMemory();
-
-        var list = array.ToList();
-        sw.Restart();
-        int listSum = 0;
-        for (int i = 0; i < elementsCount; i++) {
-            foreach (int number in list) {
-                listSum += number;
-            }
-        }
-        sw.Stop();
-        Console.WriteLine("    - list of ints:  {0}", sw.Elapsed);
-
-        tester.AssertEqual(arraySum, sliceSum);
-        tester.AssertEqual(listSum, sliceSum);
         return true;
     }
 
@@ -185,46 +151,40 @@ class PerformanceTests
     /// </summary>
     public bool TestPerfOfForEachLoopWhenUsedViaInterface(Tester tester)
     {
-        const int elementsCount = 10000;
-        var array = GenerateRandomNumbers(elementsCount);
+        ExecuteAndMeasure(
+            GenerateRandomNumbers(ElementsCount),
+            Sum);
 
-        tester.CleanUpMemory();
+        ExecuteAndMeasure(
+            GenerateRandomNumbers(ElementsCount).Slice(),
+            slice => Sum(slice));
 
-        var sw = System.Diagnostics.Stopwatch.StartNew();
-        int arraySum = 0;
-        for (int i = 0; i < elementsCount; i++) {
-            arraySum += Sum(array);
-        }
-        sw.Stop();
-        Console.WriteLine("    - array of ints: {0}", sw.Elapsed);
+        ExecuteAndMeasure(
+           GenerateRandomNumbers(ElementsCount).ToList(),
+           Sum);
 
-        tester.CleanUpMemory();
-
-        var slice = array.Slice();
-        sw.Restart();
-        int sliceSum = 0;
-        for (int i = 0; i < elementsCount; i++) {
-            sliceSum += Sum(slice);
-        }
-        sw.Stop();
-        Console.WriteLine("    - slice of ints: {0}", sw.Elapsed);
-
-        tester.CleanUpMemory();
-
-        var list = array.ToList();
-        sw.Restart();
-        int listSum = 0;
-        for (int i = 0; i < elementsCount; i++) {
-            listSum += Sum(list);
-        }
-        sw.Stop();
-        Console.WriteLine("    - list of ints:  {0}", sw.Elapsed);
-
-        tester.AssertEqual(arraySum, sliceSum);
-        tester.AssertEqual(listSum, sliceSum);
         return true;
     }
 
+    private static int ExecuteAndMeasure<T>(T data, Func<T, int> test)
+    {
+        Tester.CleanUpMemory();
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+        int sum = 0;
+
+        for (int i = 0; i < ElementsCount; i++) {
+            sum += test.Invoke(data);;
+        }
+
+        stopwatch.Stop();
+        Console.WriteLine("    - {0}:  {1}", new string(typeof(T).Name.Take(5).ToArray()), stopwatch.Elapsed);
+        return sum;
+    }
+
+    /// <summary>
+    /// we generate new set of data every time just to make sure that each of them is cached in CPU cached in similar way
+    /// </summary>
     private static int[] GenerateRandomNumbers(int count)
     {
         var ints = new int[count];
@@ -239,8 +199,6 @@ class PerformanceTests
     /// iterates explicit on IEnumerable instead of calling .Sum() extension method, 
     /// which implementation might try to cast it to array etc. or use other tricks
     /// </summary>
-    /// <param name="numbers"></param>
-    /// <returns></returns>
     private static int Sum(IEnumerable<int> numbers)
     {
         int sum = 0;

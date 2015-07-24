@@ -107,7 +107,7 @@ class Tester
         return Success;
     }
 
-    public void CleanUpMemory()
+    public static void CleanUpMemory()
     {
         GC.Collect();
         GC.WaitForPendingFinalizers();
