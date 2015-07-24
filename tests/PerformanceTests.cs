@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 class PerformanceTests
@@ -117,7 +118,13 @@ class PerformanceTests
     }
 
     /// <summary>
-    /// the compiler optimizes foreach loops for built in collections to be as fast as for loop
+    /// the compiler optimizes foreach loops for collections that do have public method 
+    /// "GetEnumerator that takes no parameters and returns a type that has two members: 
+    ///     a) a method MoveMext that takes no parameters and return a Boolean, and 
+    ///     b) a property Current with a getter that returns an Object"
+    /// source: http://blogs.msdn.com/b/kcwalina/archive/2007/07/18/ducknotation.aspx
+    /// the gain is that is does not call interface members on structures which is expensive
+    /// and does not put it into try/finally block with Dispose in the finally
     /// the purpose of this test is to show how big the difference is because of that
     /// and hopefully in the future prove that we gained similar performance
     /// </summary>
@@ -169,6 +176,55 @@ class PerformanceTests
         return true;
     }
 
+    /// <summary>
+    /// the compiler does not optimize foreach loops for collections when they are used via interfaces
+    /// it might call interface members on structures which is expensive
+    /// and it does put it into try/finally block with Dispose in the finally
+    /// the purpose of this test is to show how big the difference is because of that
+    /// and hopefully in the future prove that we gained similar performance
+    /// </summary>
+    public bool TestPerfOfForEachLoopWhenUsedViaInterface(Tester tester)
+    {
+        const int elementsCount = 10000;
+        var array = GenerateRandomNumbers(elementsCount);
+
+        tester.CleanUpMemory();
+
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        int arraySum = 0;
+        for (int i = 0; i < elementsCount; i++) {
+            arraySum += Sum(array);
+        }
+        sw.Stop();
+        Console.WriteLine("    - array of ints: {0}", sw.Elapsed);
+
+        tester.CleanUpMemory();
+
+        var slice = array.Slice();
+        sw.Restart();
+        int sliceSum = 0;
+        for (int i = 0; i < elementsCount; i++) {
+            sliceSum += Sum(slice);
+        }
+        sw.Stop();
+        Console.WriteLine("    - slice of ints: {0}", sw.Elapsed);
+
+        tester.CleanUpMemory();
+
+        var list = array.ToList();
+        sw.Restart();
+        int listSum = 0;
+        for (int i = 0; i < elementsCount; i++) {
+            listSum += Sum(list);
+        }
+        sw.Stop();
+        Console.WriteLine("    - list of ints:  {0}", sw.Elapsed);
+
+        tester.AssertEqual(arraySum, sliceSum);
+        tester.AssertEqual(listSum, sliceSum);
+        return true;
+    }
+
     private static int[] GenerateRandomNumbers(int count)
     {
         var ints = new int[count];
@@ -177,6 +233,21 @@ class PerformanceTests
             ints[i] = random.Next();
         }
         return ints;
+    }
+
+    /// <summary>
+    /// iterates explicit on IEnumerable instead of calling .Sum() extension method, 
+    /// which implementation might try to cast it to array etc. or use other tricks
+    /// </summary>
+    /// <param name="numbers"></param>
+    /// <returns></returns>
+    private static int Sum(IEnumerable<int> numbers)
+    {
+        int sum = 0;
+        foreach (var number in numbers) {
+            sum += number;
+        }
+        return sum;
     }
 }
 
