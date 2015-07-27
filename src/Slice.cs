@@ -8,6 +8,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace System
 {
@@ -151,6 +152,7 @@ namespace System
         /// </exception>
         public T this[int index]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)] // it makes enumeration via IEnumerable faster
             get {
                 Contract.RequiresInRange(index, Length);
                 return PtrUtils.Get<T>(
