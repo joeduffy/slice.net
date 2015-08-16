@@ -61,11 +61,15 @@ namespace System
         {
             Slice<T> m_slice;    // The slice being enumerated.
             int      m_position; // The current position.
+            // saving this length instead of reading it from slice each time saves time for looping
+            // due to locality of the data (length is next to position so chances for cache HIT are bigger)
+            readonly int m_sliceLength; 
 
             internal Enumerator(Slice<T> slice)
             {
                 m_slice = slice;
                 m_position = -1;
+                m_sliceLength = slice.Length;
             }
 
             public T Current
@@ -75,7 +79,7 @@ namespace System
 
             public bool MoveNext()
             {
-                return ++m_position < m_slice.Length;
+                return ++m_position < m_sliceLength;
             }
         }
 
@@ -88,16 +92,20 @@ namespace System
         {
             Slice<T> m_slice;    // The slice being enumerated.
             int      m_position; // The current position.
+            // saving this length instead of reading it from slice each time saves time for looping
+            // due to locality of the data (length is next to position so chances for cache HIT are bigger)
+            readonly int m_sliceLength;
 
             public EnumeratorObject(Slice<T> slice)
             {
                 m_slice = slice;
                 m_position = -1;
+                m_sliceLength = slice.Length;
             }
 
             public T Current
             {
-                get { return m_slice[m_position]; }
+                get { return m_slice.GetItemWithoutBoundariesCheck(m_position); }
             }
 
             object IEnumerator.Current
@@ -115,8 +123,7 @@ namespace System
             public bool MoveNext()
             {
                 int nextItemIndex = m_position + 1;
-                if (nextItemIndex < m_slice.Length)
-                {
+                if (nextItemIndex < m_sliceLength) {
                     m_position = nextItemIndex;
                     return true;
                 }

@@ -232,6 +232,18 @@ namespace System
             return Object == other.Object &&
                 Offset == other.Offset && Length == other.Length;
         }
+
+        /// <summary>
+        /// Returns item from given index without the boundaries check
+        /// use only in places where moving outside the boundaries is impossible
+        /// gain: performance: no boundaries check (single operation) 
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal T GetItemWithoutBoundariesCheck(int index)
+        {
+            return PtrUtils.Get<T>(
+                    m_object, m_offset + (index * PtrUtils.SizeOf<T>()));
+        }
     }
 }
 
