@@ -114,7 +114,13 @@ namespace System
 
             public bool MoveNext()
             {
-                return ++m_position < m_slice.Length;
+                int nextItemIndex = m_position + 1;
+                if (nextItemIndex < m_slice.Length)
+                {
+                    m_position = nextItemIndex;
+                    return true;
+                }
+                return false;
             }
 
             public void Reset()
