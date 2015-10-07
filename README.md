@@ -1,5 +1,11 @@
 # Slice.NET
 
+## Important Note
+
+I am no longer maintaining this repo.  We are working on integrating `Slice<T>` into .NET, and there is now an evolved fork of this code over on [dotnet/corefxlab](https://github.com/dotnet/corefxlab/tree/master/src/System.Slices).  Please feel free to submit feedback and/or pull requests over there, and keep your eye on the [official corefx repo](https://github.com/dotnet/corefx).  Thanks for all the interest so far!
+
+## Overview
+
 A simple C# type, Slice, that provides a uniform API for working with
 
 - Arrays and subarrays
