@@ -186,7 +186,7 @@ namespace System
                 return false;
             }
 
-            int j = str.Length - value.Length - 1;
+            int j = str.Length - value.Length;
             foreach (var c in value) {
                 if (str[j] != c) {
                     return false;
