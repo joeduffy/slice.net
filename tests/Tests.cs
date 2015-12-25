@@ -39,6 +39,15 @@ class Tests
         }
         return true;
     }
+    
+    public bool TestEndsWith(Tester t) {
+        
+        var str = "Hello, Slice!";
+        Slice<char> slice = str.Slice();
+        Slice<char> slice2 = "Slice!".Slice();
+        
+        str.EndsWith(slice2);
+    }
 
     public bool TestCreateOverString(Tester t)
     {
