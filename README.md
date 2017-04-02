@@ -2,7 +2,10 @@
 
 ## Important Note
 
-I am no longer maintaining this repo.  We are actively integrating `Slice<T>` into .NET (renamed as `Span<T>`); there is an evolving fork over on [dotnet/corefxlab](https://github.com/dotnet/corefxlab/tree/master/src/System.Slices), along with a [more complete design plan](https://github.com/dotnet/corefxlab/blob/master/docs/Span.md).  Please feel free to submit feedback and/or pull requests over there, and keep your eye on the [official corefx repo](https://github.com/dotnet/corefx).  Thanks for all the interest so far!
+This repo is deprecated.  The .NET team is working on first class `Slice<T>` support (now called `Span<T>`), and there's
+an evolving design document in the [dotnet/corefxlab repo](
+https://github.com/dotnet/corefxlab/blob/master/docs/specs/span.md).  Please submit feedback and/or pull requests there,
+and keep your eye on the [dotnet/corefx repo](https://github.com/dotnet/corefx).  Thanks for all the interest so far!
 
 ## Overview
 
