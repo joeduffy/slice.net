@@ -59,7 +59,7 @@ namespace System
         /// </exception>
         public static Slice<T> Slice<T>(this T[] array, int start, int end)
         {
-           return new Slice<T>(array, start, end - start);
+           return new Slice<T>(array, start, end);
         }
 
         /// <summary>
