@@ -8,6 +8,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace System
 {
@@ -17,7 +18,7 @@ namespace System
     /// to regular accesses and is a struct so that creation and subslicing do
     /// not require additional allocations.  It is type- and memory-safe.
     /// </summary>
-    public struct Slice<T> : IEnumerable<T>
+    public partial struct Slice<T> : IEnumerable<T>
     {
         /// <summary>A managed array/string; or null for native ptrs.</summary>
         readonly object  m_object;
@@ -151,6 +152,7 @@ namespace System
         /// </exception>
         public T this[int index]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)] // it makes enumeration via IEnumerable faster
             get {
                 Contract.RequiresInRange(index, Length);
                 return PtrUtils.Get<T>(
@@ -232,64 +234,16 @@ namespace System
         }
 
         /// <summary>
-        /// Returns an enumerator over the Slice's entire contents.
+        /// Returns item from given index without the boundaries check
+        /// use only in places where moving outside the boundaries is impossible
+        /// gain: performance: no boundaries check (single operation) 
         /// </summary>
-        public Enumerator GetEnumerator()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal T GetItemWithoutBoundariesCheck(int index)
         {
-            return new Enumerator(this);
+            return PtrUtils.Get<T>(
+                    m_object, m_offset + (index * PtrUtils.SizeOf<T>()));
         }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        /// <summary>
-        /// A struct-based enumerator, to make fast enumerations possible.
-        /// This isn't designed for direct use, instead see GetEnumerator.
-        /// </summary>
-        public struct Enumerator : IEnumerator<T>
-        {
-            Slice<T> m_slice;    // The slice being enumerated.
-            int      m_position; // The current position.
-
-            public Enumerator(Slice<T> slice)
-            {
-                m_slice = slice;
-                m_position = -1;
-            }
-
-            public T Current
-            {
-                get { return m_slice[m_position]; }
-            }
-
-            object IEnumerator.Current
-            {
-                get { return Current; }
-            }
-
-            public void Dispose()
-            {
-                m_slice = default(Slice<T>);
-                m_position = -1;
-            }
-
-            public bool MoveNext()
-            {
-                return ++m_position < m_slice.Length;
-            }
-
-            public void Reset()
-            {
-                m_position = -1;
-            }
-        }        
     }
 }
 

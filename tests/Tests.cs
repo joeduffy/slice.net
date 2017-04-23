@@ -145,39 +145,17 @@ class Tests
         return true;
     }
 
-    public bool TestPerfLoop(Tester t)
+    public bool TestRangeCheckAlwaysThrowsArgumentOutOfRangeExceptionForNegativeValues(Tester tester)
     {
-        var ints = new int[10000];
-        Random r = new Random(1234);
-        for (int i = 0; i < ints.Length; i++) { ints[i] = r.Next(); }
+        var slice = new[] { 0, 1, 2, 3 }.Slice();
 
-        t.CleanUpMemory();
-
-        var sw = System.Diagnostics.Stopwatch.StartNew();
-        int x = 0;
-        for (int i = 0; i < 10000; i++) {
-            for (int j = 0; j < ints.Length; j++) {
-                x += ints[i];
-            }
+        unchecked {
+            tester.Throws<ArgumentOutOfRangeException>(() => { int x = slice[-1]; });
         }
-        sw.Stop();
-        Console.WriteLine("    - ints : {0}", sw.Elapsed);
-
-        t.CleanUpMemory();
-
-        var slice = ints.Slice();
-        sw.Reset();
-        sw.Start();
-        int y = 0;
-        for (int i = 0; i < 10000; i++) {
-            for (int j = 0; j < slice.Length; j++) {
-                y += slice[i];
-            }
+        checked {
+            tester.Throws<ArgumentOutOfRangeException>(() => { int x = slice[-1]; });
         }
-        sw.Stop();
-        Console.WriteLine("    - slice: {0}", sw.Elapsed);
 
-        t.AssertEqual(x, y);
         return true;
     }
 }

@@ -34,15 +34,24 @@ namespace System
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequiresInRange(int start, int length)
         {
-            if (!(start >= 0 && start < length)) {
-                throw new ArgumentOutOfRangeException();
+            // explicit unchecked block is used in order to avoid OverflowException when casting 
+            // negative int to unsigned int when the code is compiled with /checked option
+            unchecked 
+            {
+                // use unsigned int to reduce range check by one ( >= 0 )
+                if ((uint)start >= (uint)length) {
+                    throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
         public static void RequiresInInclusiveRange(int start, int length)
         {
-            if (!(start >= 0 && start <= length)) {
-                throw new ArgumentOutOfRangeException();
+            unchecked
+            {
+                if ((uint)start > (uint)length) {
+                    throw new ArgumentOutOfRangeException();
+                }
             }
         }
 

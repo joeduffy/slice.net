@@ -25,6 +25,9 @@ class Program
         else {
             Console.WriteLine("{0} Failures ({1})", t.Failures, sw.Elapsed);
         }
+        Console.WriteLine("==========");
+        Console.WriteLine("Performance Tests");
+        t.RunTests(new PerformanceTests());
     }
 }
 
@@ -54,6 +57,20 @@ class Tester
         where T : IEquatable<T>
     {
         Assert(x.Equals(y), String.Format("{0} != {1}", x, y));
+    }
+
+    public void Throws<TException>(Action command)
+        where TException : Exception
+    {
+        try {
+            command.Invoke();
+        }
+        catch (TException) {
+            return;
+        }
+
+        m_failures++;
+        Console.WriteLine("    # assertion failed, command did not throw");
     }
 
     public bool RunTests(object tests)
@@ -90,7 +107,7 @@ class Tester
         return Success;
     }
 
-    public void CleanUpMemory()
+    public static void CleanUpMemory()
     {
         GC.Collect();
         GC.WaitForPendingFinalizers();
